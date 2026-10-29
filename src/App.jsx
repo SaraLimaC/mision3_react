@@ -1,122 +1,166 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useState, useEffect, useMemo } from "react";
 
-function App() {
-  const [count, setCount] = useState(0)
+import { cargarPaises, buscarPais } from "./api.js";
+import {
+  ordenarPaises,
+  filtrarPorTexto,
+  filtrarPorRegion,
+  calcularPoblacionTotal,
+} from "./logica.js";
+import { useLocalStorage } from "./hooks/useLocalStorage.js";
 
+import Buscador from "./components/Buscador.jsx";
+import FiltroRegion from "./components/FiltroRegion.jsx";
+import Estadisticas from "./components/Estadisticas.jsx";
+import BarraComparar from "./components/BarraComparar.jsx";
+import Mensaje from "./components/Mensaje.jsx";
+import ListaPaises from "./components/ListaPaises.jsx";
+import FichaPais from "./components/FichaPais.jsx";
+import Comparador from "./components/Comparador.jsx";
+
+export default function App() {
+  // ---------- ESTADO (solo lo mínimo) ----------
+  // Todos los países, guardados también en localStorage como caché
+  const [paises, setPaises] = useLocalStorage("paises", []);
+  const [errorCarga, setErrorCarga] = useState("");
+
+  // Lo que ha escrito/elegido el usuario
+  const [texto, setTexto] = useState("");
+  const [region, setRegion] = useState("");
+
+  // Qué pantalla se ve: "lista", "ficha" o "comparar"
+  const [vista, setVista] = useState("lista");
+  const [detalle, setDetalle] = useState(null); // país abierto en la ficha
+  const [comparados, setComparados] = useState([]); // hasta 2 países
+  const [aviso, setAviso] = useState(""); // "Cargando..." o errores al abrir un país
+
+  // ---------- EFECTO: cargar los países ----------
+  // Solo se pide a la API si no hay países guardados en la caché.
+  useEffect(() => {
+    if (paises.length > 0) return;
+
+    const controlador = new AbortController();
+
+    cargarPaises(controlador.signal)
+      .then(setPaises)
+      .catch((error) => {
+        // Si se cancela a propósito (cleanup) no es un error real
+        if (error.name !== "AbortError") setErrorCarga(error.message);
+      });
+
+    // Limpieza: cancela la petición si el componente se desmonta
+    // (con StrictMode en desarrollo esto se ejecuta una vez de prueba)
+    return () => controlador.abort();
+  }, [paises.length, setPaises]);
+
+  // ---------- VALORES DERIVADOS (se calculan al pintar, no son estado) ----------
+  const ordenados = useMemo(() => ordenarPaises(paises), [paises]);
+
+  let visibles = ordenados;
+  if (region) visibles = filtrarPorRegion(visibles, region);
+  if (texto.trim()) visibles = filtrarPorTexto(visibles, texto.trim());
+
+  const poblacion = calcularPoblacionTotal(visibles);
+  const hayFiltro = region !== "" || texto.trim() !== "";
+  const cargando = paises.length === 0 && errorCarga === "";
+
+  // ---------- MANEJADORES DE EVENTOS ----------
+  // Abre un país: lo pide a la API por su nombre
+  async function abrirPais(nombre) {
+    nombre = nombre.trim();
+
+    if (nombre === "") {
+      setAviso("Escribe el nombre de un país.");
+      return;
+    }
+
+    try {
+      setAviso("Cargando...");
+
+      const data = await buscarPais(nombre);
+
+      // Preferimos la coincidencia exacta; si no hay, el primer resultado
+      const pais =
+        data.find((p) => p.name.toLowerCase() === nombre.toLowerCase()) || data[0];
+
+      if (!pais) throw new Error("País no encontrado");
+
+      setDetalle(pais);
+      setVista("ficha");
+      setAviso("");
+      window.scrollTo(0, 0);
+    } catch (error) {
+      setAviso(error.message);
+    }
+  }
+
+  function volverALista() {
+    setVista("lista");
+    setAviso("");
+  }
+
+  // Añade o quita un país del comparador (máximo 2: si ya hay dos, sustituye el más antiguo)
+  function alternarComparado(pais) {
+    setComparados((anteriores) => {
+      if (anteriores.some((p) => p.name === pais.name)) {
+        return anteriores.filter((p) => p.name !== pais.name);
+      }
+      if (anteriores.length >= 2) {
+        return [anteriores[1], pais];
+      }
+      return [...anteriores, pais];
+    });
+  }
+
+  function quitarComparado(pais) {
+    setComparados((anteriores) => anteriores.filter((p) => p.name !== pais.name));
+  }
+
+  // ---------- LO QUE SE VE ----------
   return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <header>
+        <h1>🌍 Wikicountry</h1>
+        <p>Busca países o selecciónalos de la lista</p>
+      </header>
 
-      <div className="ticks"></div>
+      <main>
+        {vista === "lista" && (
+          <>
+            <Buscador texto={texto} onCambioTexto={setTexto} onBuscar={abrirPais} />
+            <FiltroRegion region={region} onCambioRegion={setRegion} />
+            <Estadisticas
+              cantidad={visibles.length}
+              poblacion={poblacion}
+              filtrado={hayFiltro}
+            />
+            <BarraComparar
+              comparados={comparados}
+              onQuitar={quitarComparado}
+              onVer={() => setVista("comparar")}
+            />
+            <Mensaje
+              texto={errorCarga || aviso || (cargando ? "Cargando países..." : "")}
+            />
+            {!cargando && (
+              <ListaPaises paises={visibles} onSeleccionar={abrirPais} />
+            )}
+          </>
+        )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+        {vista === "ficha" && detalle && (
+          <FichaPais
+            pais={detalle}
+            enComparador={comparados.some((p) => p.name === detalle.name)}
+            onComparar={alternarComparado}
+            onVolver={volverALista}
+          />
+        )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+        {vista === "comparar" && comparados.length === 2 && (
+          <Comparador paises={comparados} onVolver={volverALista} />
+        )}
+      </main>
     </>
-  )
+  );
 }
-
-export default App
