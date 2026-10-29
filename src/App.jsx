@@ -9,14 +9,14 @@ import {
 } from "./logica.js";
 import { useLocalStorage } from "./hooks/useLocalStorage.js";
 
-import Buscador from "./components/Buscador.jsx";
-import FiltroRegion from "./components/FiltroRegion.jsx";
-import Estadisticas from "./components/Estadisticas.jsx";
-import BarraComparar from "./components/BarraComparar.jsx";
-import Mensaje from "./components/Mensaje.jsx";
-import ListaPaises from "./components/ListaPaises.jsx";
-import FichaPais from "./components/FichaPais.jsx";
-import Comparador from "./components/Comparador.jsx";
+import Buscador from "./componentes/Buscador.jsx";
+import FiltroRegion from "./componentes/FiltroRegion.jsx";
+import Estadisticas from "./componentes/Estadisticas.jsx";
+import BarraComparar from "./componentes/BarraComparar.jsx";
+import Mensaje from "./componentes/Mensaje.jsx";
+import ListaPaises from "./componentes/ListaPaises.jsx";
+import FichaPais from "./componentes/FichaPais.jsx";
+import Comparador from "./componentes/Comparador.jsx";
 
 export default function App() {
   // ---------- ESTADO (solo lo mínimo) ----------
