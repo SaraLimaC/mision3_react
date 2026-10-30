@@ -1,13 +1,14 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 
-import { cargarPaises, buscarPais } from "./api.js";
 import {
   ordenarPaises,
   filtrarPorTexto,
   filtrarPorRegion,
   calcularPoblacionTotal,
 } from "./logica.js";
-import { useLocalStorage } from "./hooks/useLocalStorage.js";
+import { usePaises } from "./hooks/usePaises.js";
+import { useComparador } from "./hooks/useComparador.js";
+import { usePaisDetalle } from "./hooks/usePaisDetalle.js";
 
 import Buscador from "./componentes/Buscador.jsx";
 import FiltroRegion from "./componentes/FiltroRegion.jsx";
@@ -19,104 +20,48 @@ import FichaPais from "./componentes/FichaPais.jsx";
 import Comparador from "./componentes/Comparador.jsx";
 
 export default function App() {
-  // ---------- ESTADO (solo lo mínimo) ----------
-  // Todos los países, guardados también en localStorage como caché
-  const [paises, setPaises] = useLocalStorage("paises", []);
-  const [errorCarga, setErrorCarga] = useState("");
+  // ---------- Datos y lógica que vienen de los hooks ----------
+  const { paises, cargando, error } = usePaises();
+  const { detalle, aviso, abrir, limpiarAviso } = usePaisDetalle();
+  const { comparados, estaComparado, alternar, quitar } = useComparador();
 
-  // Lo que ha escrito/elegido el usuario
+  // ---------- Estado propio de App ----------
   const [texto, setTexto] = useState("");
   const [region, setRegion] = useState("");
+  const [vista, setVista] = useState("lista"); // "lista", "ficha" o "comparar"
 
-  // Qué pantalla se ve: "lista", "ficha" o "comparar"
-  const [vista, setVista] = useState("lista");
-  const [detalle, setDetalle] = useState(null); // país abierto en la ficha
-  const [comparados, setComparados] = useState([]); // hasta 2 países
-  const [aviso, setAviso] = useState(""); // "Cargando..." o errores al abrir un país
+  // ---------- Valores derivados (no son estado) ----------
+  const textoLimpio = texto.trim();
 
-  // ---------- EFECTO: cargar los países ----------
-  // Solo se pide a la API si no hay países guardados en la caché.
-  useEffect(() => {
-    if (paises.length > 0) return;
-
-    const controlador = new AbortController();
-
-    cargarPaises(controlador.signal)
-      .then(setPaises)
-      .catch((error) => {
-        // Si se cancela a propósito (cleanup) no es un error real
-        if (error.name !== "AbortError") setErrorCarga(error.message);
-      });
-
-    // Limpieza: cancela la petición si el componente se desmonta
-    // (con StrictMode en desarrollo esto se ejecuta una vez de prueba)
-    return () => controlador.abort();
-  }, [paises.length, setPaises]);
-
-  // ---------- VALORES DERIVADOS (se calculan al pintar, no son estado) ----------
-  const ordenados = useMemo(() => ordenarPaises(paises), [paises]);
-
-  let visibles = ordenados;
-  if (region) visibles = filtrarPorRegion(visibles, region);
-  if (texto.trim()) visibles = filtrarPorTexto(visibles, texto.trim());
+  const visibles = useMemo(() => {
+    let lista = ordenarPaises(paises);
+    if (region) lista = filtrarPorRegion(lista, region);
+    if (textoLimpio) lista = filtrarPorTexto(lista, textoLimpio);
+    return lista;
+  }, [paises, region, textoLimpio]);
 
   const poblacion = calcularPoblacionTotal(visibles);
-  const hayFiltro = region !== "" || texto.trim() !== "";
-  const cargando = paises.length === 0 && errorCarga === "";
+  const hayFiltro = region !== "" || textoLimpio !== "";
 
-  // ---------- MANEJADORES DE EVENTOS ----------
-  // Abre un país: lo pide a la API por su nombre
+  // Un único mensaje: el error de carga tiene prioridad sobre el resto
+  const mensaje = error || aviso || (cargando ? "Cargando países..." : "");
+
+  // ---------- Manejadores ----------
   async function abrirPais(nombre) {
-    nombre = nombre.trim();
+    const abierto = await abrir(nombre);
 
-    if (nombre === "") {
-      setAviso("Escribe el nombre de un país.");
-      return;
-    }
-
-    try {
-      setAviso("Cargando...");
-
-      const data = await buscarPais(nombre);
-
-      // Preferimos la coincidencia exacta; si no hay, el primer resultado
-      const pais =
-        data.find((p) => p.name.toLowerCase() === nombre.toLowerCase()) || data[0];
-
-      if (!pais) throw new Error("País no encontrado");
-
-      setDetalle(pais);
+    if (abierto) {
       setVista("ficha");
-      setAviso("");
       window.scrollTo(0, 0);
-    } catch (error) {
-      setAviso(error.message);
     }
   }
 
   function volverALista() {
     setVista("lista");
-    setAviso("");
+    limpiarAviso();
   }
 
-  // Añade o quita un país del comparador (máximo 2: si ya hay dos, sustituye el más antiguo)
-  function alternarComparado(pais) {
-    setComparados((anteriores) => {
-      if (anteriores.some((p) => p.name === pais.name)) {
-        return anteriores.filter((p) => p.name !== pais.name);
-      }
-      if (anteriores.length >= 2) {
-        return [anteriores[1], pais];
-      }
-      return [...anteriores, pais];
-    });
-  }
-
-  function quitarComparado(pais) {
-    setComparados((anteriores) => anteriores.filter((p) => p.name !== pais.name));
-  }
-
-  // ---------- LO QUE SE VE ----------
+  // ---------- Lo que se ve ----------
   return (
     <>
       <header>
@@ -136,12 +81,10 @@ export default function App() {
             />
             <BarraComparar
               comparados={comparados}
-              onQuitar={quitarComparado}
+              onQuitar={quitar}
               onVer={() => setVista("comparar")}
             />
-            <Mensaje
-              texto={errorCarga || aviso || (cargando ? "Cargando países..." : "")}
-            />
+            <Mensaje texto={mensaje} />
             {!cargando && (
               <ListaPaises paises={visibles} onSeleccionar={abrirPais} />
             )}
@@ -151,8 +94,8 @@ export default function App() {
         {vista === "ficha" && detalle && (
           <FichaPais
             pais={detalle}
-            enComparador={comparados.some((p) => p.name === detalle.name)}
-            onComparar={alternarComparado}
+            enComparador={estaComparado(detalle)}
+            onComparar={alternar}
             onVolver={volverALista}
           />
         )}

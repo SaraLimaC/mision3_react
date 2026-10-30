@@ -1,18 +1,13 @@
-export async function cargarPaises() {
+export async function cargarPaises(signal) {
+  const response = await fetch("https://countries.dev/countries", { signal });
 
-    const response = await fetch(
-        "https://countries.dev/countries"
-    );
+  if (!response.ok) {
+    throw new Error("No se pudo cargar la lista de países");
+  }
 
-    if (!response.ok) {
-        throw new Error(
-            "No se pudo cargar la lista de países"
-        );
-    }
-
-    return await response.json();
+  return await response.json();
 }
-
+    
 export async function buscarPais(nombre) {
 
     const response = await fetch(

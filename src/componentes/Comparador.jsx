@@ -42,7 +42,13 @@ export default function Comparador({ paises, onVolver }) {
                 {paises.map((pais, i) => (
                   <td
                     key={pais.name}
-                    className={campo === "poblacion" && pais === masPoblado ? "mayor" : ""}
+                    className={
+                      campo === "poblacion" &&
+                      masPoblado.population &&
+                      pais.population === masPoblado.population
+                        ? "mayor"
+                        : ""
+                    }
                   >
                     {datos[i][campo]}
                   </td>
