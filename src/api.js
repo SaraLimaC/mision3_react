@@ -1,5 +1,5 @@
-export async function cargarPaises(signal) {
-  const response = await fetch("https://countries.dev/countries", { signal });
+export async function cargarPaises() {
+  const response = await fetch("https://countries.dev/countries");
 
   if (!response.ok) {
     throw new Error("No se pudo cargar la lista de países");

@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { cargarPaises } from "../api.js";
 import { useLocalStorage } from "./useLocalStorage.js";
 
-// Carga la lista de países (desde la caché o desde la API)
-// y devuelve { paises, cargando, error }
+// Cargamos la lista de paises de la API
 export function usePaises() {
   const [paises, setPaises] = useLocalStorage("paises", []);
   // Si ya hay países guardados no hace falta cargar nada
@@ -13,23 +12,23 @@ export function usePaises() {
   useEffect(() => {
     if (!cargando) return;
 
-    const controlador = new AbortController();
+    let ignorar = false;
 
-    cargarPaises(controlador.signal)
+    cargarPaises()
       .then((datos) => {
         setPaises(datos);
         setCargando(false);
       })
       .catch((e) => {
         // Si se cancela a propósito (cleanup) no es un error real
-        if (e.name !== "AbortError") {
+        if (ignorar) {
           setError(e.message);
           setCargando(false);
         }
       });
 
     // Limpieza: cancela la petición si el componente se desmonta
-    return () => controlador.abort();
+    return () => ignorar = true;
   }, [cargando, setPaises]);
 
   return { paises, cargando, error };
