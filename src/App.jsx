@@ -20,17 +20,17 @@ import FichaPais from "./componentes/FichaPais.jsx";
 import Comparador from "./componentes/Comparador.jsx";
 
 export default function App() {
-  // ---------- Datos y lógica que vienen de los hooks ----------
+  // Informacion de los hooks
   const { paises, cargando, error } = usePaises();
   const { detalle, aviso, abrir, limpiarAviso } = usePaisDetalle();
   const { comparados, estaComparado, alternar, quitar } = useComparador();
 
-  // ---------- Estado propio de App ----------
+  //estado de la app
   const [texto, setTexto] = useState("");
   const [region, setRegion] = useState("");
-  const [vista, setVista] = useState("lista"); // "lista", "ficha" o "comparar"
+  const [vista, setVista] = useState("lista"); 
 
-  // ---------- Valores derivados (no son estado) ----------
+
   const textoLimpio = texto.trim();
 
   const visibles = useMemo(() => {
@@ -43,10 +43,9 @@ export default function App() {
   const poblacion = calcularPoblacionTotal(visibles);
   const hayFiltro = region !== "" || textoLimpio !== "";
 
-  // Un único mensaje: el error de carga tiene prioridad sobre el resto
+  // Mensaje de cargando o de error
   const mensaje = error || aviso || (cargando ? "Cargando países..." : "");
 
-  // ---------- Manejadores ----------
   async function abrirPais(nombre) {
     const abierto = await abrir(nombre);
 
@@ -61,7 +60,7 @@ export default function App() {
     limpiarAviso();
   }
 
-  // ---------- Lo que se ve ----------
+  // Lo que se ve
   return (
     <>
       <header>

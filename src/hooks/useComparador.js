@@ -2,8 +2,8 @@ import { useState } from "react";
 
 const MAXIMO = 2;
 
-// Gestiona la lista de países a comparar (máximo 2).
-// Si ya hay dos y añades otro, se sustituye el más antiguo.
+// Gestiona la lista de países a comparar 
+
 export function useComparador() {
   const [comparados, setComparados] = useState([]);
 
@@ -16,6 +16,7 @@ export function useComparador() {
       if (anteriores.some((p) => p.name === pais.name)) {
         return anteriores.filter((p) => p.name !== pais.name);
       }
+      // Si ya hay 4 y añades otro, se sustituye por el más antiguo.
       if (anteriores.length >= MAXIMO) {
         return [anteriores[1], pais];
       }

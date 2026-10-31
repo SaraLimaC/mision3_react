@@ -20,14 +20,13 @@ export function usePaises() {
         setCargando(false);
       })
       .catch((e) => {
-        // Si se cancela a propósito (cleanup) no es un error real
+        // Si se cancela 
         if (ignorar) {
           setError(e.message);
           setCargando(false);
         }
       });
 
-    // Limpieza: cancela la petición si el componente se desmonta
     return () => ignorar = true;
   }, [cargando, setPaises]);
 

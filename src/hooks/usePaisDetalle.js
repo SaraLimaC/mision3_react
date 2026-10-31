@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { buscarPais } from "../api.js";
 
 // Pide un país por nombre y guarda el resultado.
-// "abrir" devuelve true si se abrió bien y false si hubo un error o llegó tarde.
+
 export function usePaisDetalle() {
   const [detalle, setDetalle] = useState(null);
   const [aviso, setAviso] = useState("");
@@ -25,7 +25,7 @@ export function usePaisDetalle() {
 
       const data = await buscarPais(nombre);
 
-      // Si mientras tanto se pidió otro país, esta respuesta ya no sirve
+      // Si mientras se había pedido otro pues no se cancela y no se muestra
       if (numero !== ultimaPeticion.current) return false;
 
       const pais =

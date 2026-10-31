@@ -1,4 +1,4 @@
-// Solo muestra datos que le llegan ya calculados desde App
+// Solo muestra datos que le llegan ya calculados en App
 export default function Estadisticas({ cantidad, poblacion, filtrado }) {
   return (
     <p className="estadisticas">

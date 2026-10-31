@@ -1,4 +1,4 @@
-// Las regiones están fuera del componente porque no cambian nunca
+
 const REGIONES = [
   { valor: "", nombre: "Todas" },
   { valor: "Europe", nombre: "Europa" },
@@ -10,7 +10,7 @@ const REGIONES = [
   { valor: "Antarctic", nombre: "Antártida" },
   { valor: "Antarctic Ocean", nombre: "Océano Antártico" },
 ];
-
+//funcion que filtra por región
 export default function FiltroRegion({ region, onCambioRegion }) {
   return (
     <label className="filtro-region">

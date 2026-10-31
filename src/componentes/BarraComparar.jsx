@@ -1,5 +1,4 @@
-// Muestra los países elegidos para comparar y el botón para verlos.
-// Si no hay ninguno elegido, no se pinta nada.
+// Se muestran los países elegidos para comparar y el botón para verlos.
 export default function BarraComparar({ comparados, onQuitar, onVer }) {
   if (comparados.length === 0) return null;
 

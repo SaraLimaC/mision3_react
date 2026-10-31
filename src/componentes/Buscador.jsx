@@ -1,5 +1,5 @@
-// Campo de texto controlado: su valor lo manda el estado de App.
-// Escribir filtra la lista; Enter o el botón abren el país escrito.
+
+// Escribir para filtrar los países
 export default function Buscador({ texto, onCambioTexto, onBuscar }) {
   return (
     <div className="buscador">

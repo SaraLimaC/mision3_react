@@ -1,6 +1,5 @@
 import { datosPais, obtenerPaisMasPoblado } from "../logica.js";
 
-// Filas de la tabla: [texto que se ve, campo de datosPais]
 const FILAS = [
   ["Capital", "capital"],
   ["Región", "region"],
@@ -9,8 +8,7 @@ const FILAS = [
   ["Población", "poblacion"],
 ];
 
-// Tabla con dos países lado a lado.
-// Qué país es el más poblado NO se guarda en estado: se calcula aquí al pintar.
+// Tabla que compara los países
 export default function Comparador({ paises, onVolver }) {
   const masPoblado = obtenerPaisMasPoblado(paises);
   const datos = paises.map(datosPais);
@@ -43,11 +41,7 @@ export default function Comparador({ paises, onVolver }) {
                   <td
                     key={pais.name}
                     className={
-                      campo === "poblacion" &&
-                      masPoblado.population &&
-                      pais.population === masPoblado.population
-                        ? "mayor"
-                        : ""
+                      campo === "poblacion" && masPoblado.population && pais.population === masPoblado.population? "mayor": ""
                     }
                   >
                     {datos[i][campo]}
