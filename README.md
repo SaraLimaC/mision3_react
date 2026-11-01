@@ -24,4 +24,4 @@ Ejemplo de prompt: "La lista no está ni alineada y además no tienen un borde e
 
 ## Autopsia
 1. Al pasar de la misión 2 a la tercera algunos de mis css usaban los ids que ya no existían así que lo cambie para evitar problemas.
-2. Para mejorar el comparador lo extendí de 2 a 4 países para que fuera un como más flexivle pero tampoco tanto como para acumular mucho espacio de la pantalla.
+2. Para mejorar el comparador lo extendí de 2 a 4 países para que fuera un como más flexible pero tampoco tanto como para acumular mucho espacio de la pantalla.
