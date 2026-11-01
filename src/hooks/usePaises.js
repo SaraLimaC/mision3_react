@@ -21,14 +21,14 @@ export function usePaises() {
         setCargando(false);
       })
       .catch((e) => {
-        // Si se cancela 
         if (ignorar) return;
-          setError(e.message);
-          setCargando(false);
-        
+        setError(e.message);
+        setCargando(false);
       });
 
-    return () => ignorar = true;
+    return () => {
+      ignorar = true;
+    };
   }, [hayCache, setPaises]);
 
   return { paises, cargando, error };
