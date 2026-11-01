@@ -22,6 +22,7 @@ Ejemplo de prompt: "La lista no está ni alineada y además no tienen un borde e
 
 Usé Claude para arreglar un aviso de la IA que corrige, porque en usePaises tenía "cargando" en un array de dependencias y tenía que sacarlo
 
+Probé la búsqueda, los filtros, la ficha y el comparador, y miré los errores de la consola del navegador.También usé la corrección automática de la misión y fui arreglando lo que señalaba.
 
 ## Autopsia
 1. Al pasar de la misión 2 a la tercera algunos de mis css usaban los ids que ya no existían así que lo cambie para evitar problemas.
