@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const MAXIMO = 2;
+const MAXIMO = 4;
 
 // Gestiona la lista de países a comparar 
 

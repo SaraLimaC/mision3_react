@@ -5,7 +5,6 @@ import { useLocalStorage } from "./useLocalStorage.js";
 // Cargamos la lista de paises de la API
 export function usePaises() {
   const [paises, setPaises] = useLocalStorage("paises", []);
-  // Si ya hay países guardados no hace falta cargar nada
   const [cargando, setCargando] = useState(paises.length === 0);
   const [error, setError] = useState("");
 
@@ -16,15 +15,16 @@ export function usePaises() {
 
     cargarPaises()
       .then((datos) => {
+        if (ignorar) return;
         setPaises(datos);
         setCargando(false);
       })
       .catch((e) => {
         // Si se cancela 
-        if (ignorar) {
+        if (ignorar) return;
           setError(e.message);
           setCargando(false);
-        }
+        
       });
 
     return () => ignorar = true;

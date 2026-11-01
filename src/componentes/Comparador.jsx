@@ -13,6 +13,9 @@ export default function Comparador({ paises, onVolver }) {
   const masPoblado = obtenerPaisMasPoblado(paises);
   const datos = paises.map(datosPais);
 
+   function esMasPoblado(pais) {
+    return Boolean(masPoblado.population) && pais.population === masPoblado.population;
+  }
   return (
     <section>
       <button className="volver" onClick={onVolver}>
@@ -41,7 +44,7 @@ export default function Comparador({ paises, onVolver }) {
                   <td
                     key={pais.name}
                     className={
-                      campo === "poblacion" && masPoblado.population && pais.population === masPoblado.population? "mayor": ""
+                      campo === "poblacion" && esMasPoblado(pais) ? "mayor" : ""
                     }
                   >
                     {datos[i][campo]}
