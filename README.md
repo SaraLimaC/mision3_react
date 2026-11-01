@@ -5,7 +5,7 @@ Misión M3 · CountryWeb — Web Development I.
 ## Cómo probarlo
 Abre index.html en el navegador con Vite usando los comandos npm run dev y luego con enter + o abres la página. Empieza a buscar países o a navegar la lista, puedes filtrar por región o por texto. 
 Al hacer click en un país te muestra su ficha con capital, población, región, subregión y moneda.
-También tiene un comparador que tiene un máximo de 2 países.
+También tiene un comparador que tiene un máximo de 4 países.
 
 ## Uso de IA
 Usé Gemini para generar un comparador porque no sabía como hacerlo. También para crar una variable que ignorara una respuesta de la api que llegaba tarde.
