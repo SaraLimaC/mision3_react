@@ -14,7 +14,7 @@ Ejemplo de prompt: "Como puedo implementar un comparador de dos países con 5 ca
 
 Usé Claude para crear el hook useLocalStorage.js. También para decidir que iba a aparecer, es decir aparecer en pantalla usando condicionales.
 
-Usé Copilot para modificar y mejorar el diseño css anterior. Además lo usé para poder acceder a las opciones de la pantalla usando el teclado, es decir usando las flechas del teclado para desplazarse por los botones.
+Usé Copilot para modificar y mejorar el diseño css anterior. Además lo usé para poder acceder a la navegación por teclado, funciona con Tab y Enter o Espacio.
 
 Usé Claude para mejorar la parte visual de la lista y cada ficha
 

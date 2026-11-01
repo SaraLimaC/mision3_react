@@ -5,11 +5,12 @@ import { useLocalStorage } from "./useLocalStorage.js";
 // Cargamos la lista de paises de la API
 export function usePaises() {
   const [paises, setPaises] = useLocalStorage("paises", []);
+  const [hayCache] = useState(paises.length > 0);
   const [cargando, setCargando] = useState(paises.length === 0);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (!cargando) return;
+    if (hayCache) return;
 
     let ignorar = false;
 
@@ -28,7 +29,7 @@ export function usePaises() {
       });
 
     return () => ignorar = true;
-  }, [cargando, setPaises]);
+  }, [hayCache, setPaises]);
 
   return { paises, cargando, error };
 }
