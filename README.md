@@ -16,10 +16,11 @@ Usé Claude para crear el hook useLocalStorage.js. También para decidir que iba
 
 Usé Copilot para modificar y mejorar el diseño css anterior. Además lo usé para poder acceder a la navegación por teclado, funciona con Tab y Enter o Espacio.
 
-Usé Claude para mejorar la parte visual de la lista y cada ficha
+Usé Claude para mejorar la parte visual de la lista y cada ficha.
 
 Ejemplo de prompt: "La lista no está ni alineada y además no tienen un borde entre fichas"
 
+Usé Claude para arreglar un aviso de la IA que corrige, porque en usePaises tenía "cargando" en un array de dependencias y tenía que sacarlo
 
 
 ## Autopsia
