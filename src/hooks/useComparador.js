@@ -18,7 +18,7 @@ export function useComparador() {
       }
       // Si ya hay 4 y añades otro, se sustituye por el más antiguo.
       if (anteriores.length >= MAXIMO) {
-        return [anteriores[1], pais];
+        return [...anteriores.slice(1), pais];
       }
       return [...anteriores, pais];
     });

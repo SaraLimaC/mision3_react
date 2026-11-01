@@ -99,7 +99,7 @@ export default function App() {
           />
         )}
 
-        {vista === "comparar" && comparados.length === 2 && (
+        {vista === "comparar" && comparados.length >= 2 && (
           <Comparador paises={comparados} onVolver={volverALista} />
         )}
       </main>
